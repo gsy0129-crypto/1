@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎲🎲 豹子通殺：擲雙骰終極對決</title>
+    <style>
+        :root {
+            --bg-dark: #12151f;
+            --card-bg: #1e2436;
+            --accent-gold: #f5b041;
+            --accent-red: #e74c3c;
+            --accent-blue: #3498db;
+            --accent-green: #2ecc71;
+            --text-main: #ecf0f1;
+            --text-muted: #95a5a6;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #1f2840 0%, var(--bg-dark) 100%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #1a252f);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-gold);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: var(--accent-gold);
+            text-shadow: 0 2px 10px rgba(245, 176, 65, 0.3);
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 650px) {
+            .setup-grid { grid-template-columns: 1fr; }
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 2px solid #34495e;
+            background: #141926;
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .preset-tags {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(245, 176, 65, 0.15);
+            color: var(--accent-gold);
+            border: 1px solid rgba(245, 176, 65, 0.4);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tag:hover {
+            background: var(--accent-gold);
+            color: #12151f;
+        }
+
+        .rules-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rules-title {
+            font-weight: bold;
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .rules-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 650px) {
+            .rules-cards { grid-template-columns: 1fr; }
+        }
+
+        .rule-card {
+            background: #252d42;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .rule-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .rule-card h4 {
+            margin: 0 0 6px;
+            color: var(--accent-gold);
+        }
+
+        .rule-card p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #bdc3c7;
+            line-height: 1.4;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f39c12, #d35400);
+            color: white;
+            box-shadow: 0 5px 15px rgba(211, 84, 0, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(211, 84, 0, 0.6);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .broadcast-banner {
+            background: rgba(52, 152, 219, 0.15);
+            border-left: 4px solid var(--accent-blue);
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .round-badge {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .round-badge span {
+            background: var(--accent-gold);
+            color: #12151f;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .arena {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 700px) {
+            .arena { grid-template-columns: 1fr; }
+            .vs-divider { transform: rotate(90deg); margin: 10px 0; }
+        }
+
+        .fighter-card {
+            background: #252d42;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .fighter-card.winner-glow {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+        }
+
+        .fighter-card.leopard-glow {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 25px rgba(231, 76, 60, 0.5);
+        }
+
+        .avatar {
+            font-size: 3rem;
+            margin-bottom: 5px;
+        }
+
+        .fighter-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .fighter-equip {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .star {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #141926;
+            border: 2px solid #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .star.won {
+            background: var(--accent-gold);
+            border-color: #fff;
+            color: #12151f;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px var(--accent-gold);
+        }
+
+        .dice-box {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .die {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border-radius: 14px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4), inset 0 -3px 5px rgba(0,0,0,0.2);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding: 10px;
+            gap: 4px;
+        }
+
+        .die.rolling {
+            animation: shake 0.4s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg) scale(1.05); }
+            25% { transform: rotate(12deg) scale(1.1); }
+            50% { transform: rotate(0deg) scale(1.05); }
+            75% { transform: rotate(-12deg) scale(1.1); }
+            100% { transform: rotate(0deg) scale(1.05); }
+        }
+
+        .dot {
+            background-color: #2c3e50;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            visibility: hidden;
+        }
+
+        .die[data-val="1"] .dot,
+        .die[data-val="4"] .dot {
+            background-color: #e74c3c;
+        }
+
+        .dot.show {
+            visibility: visible;
+        }
+
+        .score-readout {
+            font-size: 1.1rem;
+            font-weight: bold;
+            min-height: 28px;
+        }
+
+        .leopard-badge {
+            display: inline-block;
+            background: var(--accent-red);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-left: 6px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .vs-divider {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent-red);
+            text-align: center;
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .status-panel {
+            background: #141926;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .log-box {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 12px 15px;
+            max-height: 130px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .log-item {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .result-icon {
+            font-size: 5rem;
+            margin-bottom: 10px;
+        }
+
+        .result-title {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+        }
+
+        .result-desc {
+            font-size: 1.15rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🎲🎲 豹子通殺：擲雙骰終極對決</h1>
+        <p>第一關試煉場 — 運氣與勇氣的終極考驗</p>
+    </div>
+
+    <div class="content">
+        <div id="setup-screen" class="screen active">
+            <div class="setup-grid">
+                <div class="input-group">
+                    <label for="player-name">🧙‍♂️ 請輸入你的冒險者名字：</label>
+                    <input type="text" id="player-name" placeholder="例如：star platinum" value="star platinum">
+                </div>
+                <div class="input-group">
+                    <label for="player-equip">⚔️ 請選擇你的使用裝備：</label>
+                    <input type="text" id="player-equip" placeholder="例如：黃金鍵盤、魔法魔杖" value="黃金鍵盤">
+                    <div class="preset-tags">
+                        <span class="tag" onclick="setEquip('黃金鍵盤')">⌨️ 黃金鍵盤</span>
+                        <span class="tag" onclick="setEquip('魔法魔杖')">🪄 魔法魔杖</span>
+                        <span class="tag" onclick="setEquip('命運之骰')">🎲 命運之骰</span>
+                        <span class="tag" onclick="setEquip('白金之星')">⭐ 白金之星</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rules-box">
+                <div class="rules-title">📜 遊戲規則圖解</div>
+                <div class="rules-cards">
+                    <div class="rule-card">
+                        <div class="rule-icon">🎲🎲</div>
+                        <h4>1. 雙骰對決</h4>
+                        <p>每回合雙方各擲出兩顆 1~6 點的骰子，進行點數比拼。</p>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-icon">🔥🐆</div>
+                        <h4>2. 豹子通殺</h4>
+                        <p>兩顆點數相同稱為<strong>「豹子」</strong>，無條件擊敗任何一般點數！</p>
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-icon">🏆👑</div>
+                        <h4>3. 三勝制霸</h4>
+                        <p>同為豹子或皆非豹子時比總和；<strong>先奪下 3 勝</strong>即為最終贏家！</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="startGame()">🚀 裝備完成，開始挑戰！</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="broadcast-banner" id="system-broadcast"></div>
+
+            <div class="round-badge">
+                <span id="round-display">--- 第 1 回合 ---</span>
+            </div>
+
+            <div class="arena">
+                <div class="fighter-card" id="player-card">
+                    <div class="avatar">🧙‍♂️</div>
+                    <div class="fighter-name" id="display-name">冒險者</div>
+                    <div class="fighter-equip" id="display-equip">裝備：【無】</div>
+                    <div class="stars" id="player-stars">
+                        <div class="star">★</div>
+                        <div class="star">★</div>
+                        <div class="star">★</div>
+                    </div>
+                    <div class="dice-box">
+                        <div class="die" id="p-die-1" data-val="1"></div>
+                        <div class="die" id="p-die-2" data-val="1"></div>
+                    </div>
+                    <div class="score-readout" id="player-score-text">準備擲骰...</div>
+                </div>
+
+                <div class="vs-divider">VS</div>
+
+                <div class="fighter-card" id="computer-card">
+                    <div class="avatar">🤖</div>
+                    <div class="fighter-name">守關電腦</div>
+                    <div class="fighter-equip">裝備：【量子運算核心】</div>
+                    <div class="stars" id="computer-stars">
+                        <div class="star">★</div>
+                        <div class="star">★</div>
+                        <div class="star">★</div>
+                    </div>
+                    <div class="dice-box">
+                        <div class="die" id="c-die-1" data-val="1"></div>
+                        <div class="die" id="c-die-2" data-val="1"></div>
+                    </div>
+                    <div class="score-readout" id="computer-score-text">等待對手...</div>
+                </div>
+            </div>
+
+            <div class="status-panel" id="battle-status">
+                👉 點擊下方按鈕擲出你的兩顆骰子！
+            </div>
+
+            <button class="btn btn-primary" id="roll-btn" onclick="playRound()">🎲 擲出雙骰！</button>
+
+            <div class="log-box" id="battle-log">
+                <div class="log-item">📜 戰鬥紀錄已準備就緒...</div>
+            </div>
+        </div>
+
+        <div id="result-screen" class="screen">
+            <div class="result-box">
+                <div class="result-icon" id="final-icon">🏆</div>
+                <div class="result-title" id="final-title">=== 🌟 最終結果 🌟 ===</div>
+                <div class="result-desc" id="final-desc"></div>
+                <button class="btn btn-primary" onclick="resetGame()">🔄 再挑戰一次</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let playerName = "";
+    let playerEquip = "";
+    let playerWins = 0;
+    let computerWins = 0;
+    let roundNum = 1;
+    let isRolling = false;
+
+    const dotPatterns = {
+        1: [4],
+        2: [0, 8],
+        3: [0, 4, 8],
+        4: [0, 2, 6, 8],
+        5: [0, 2, 4, 6, 8],
+        6: [0, 2, 3, 5, 6, 8]
+    };
+
+    function initDiceDOM() {
+        document.querySelectorAll('.die').forEach(die => {
+            die.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                die.appendChild(dot);
+            }
+            renderDieFace(die, 6);
+        });
+    }
+
+    function renderDieFace(dieElement, value) {
+        dieElement.setAttribute('data-val', value);
+        const dots = dieElement.querySelectorAll('.dot');
+        const activeIndices = dotPatterns[value];
+        dots.forEach((dot, idx) => {
+            if (activeIndices.includes(idx)) {
+                dot.classList.add('show');
+            } else {
+                dot.classList.remove('show');
+            }
+        });
+    }
+
+    function setEquip(item) {
+        document.getElementById('player-equip').value = item;
+    }
+
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function startGame() {
+        const nameInput = document.getElementById('player-name').value.trim();
+        const equipInput = document.getElementById('player-equip').value.trim();
+
+        playerName = nameInput || "無名勇者";
+        playerEquip = equipInput || "新手木劍";
+
+        playerWins = 0;
+        computerWins = 0;
+        roundNum = 1;
+
+        document.getElementById('display-name').textContent = playerName;
+        document.getElementById('display-equip').textContent = `裝備：【${playerEquip}】`;
+        document.getElementById('system-broadcast').innerHTML = `
+            <strong>=== 📢 系統廣播 ===</strong><br>
+            原來你是大名鼎鼎的 <strong>${playerName}</strong> 啊！<br>
+            歡迎勇敢的冒險者【${playerName}】！你已經裝備了【${playerEquip}】，準備好迎接第一關的 <strong>【豹子擲雙骰】</strong> 挑戰！
+        `;
+
+        updateStars();
+        document.getElementById('round-display').textContent = `--- 第 ${roundNum} 回合 ---`;
+        document.getElementById('battle-status').innerHTML = "👉 點擊下方按鈕擲出你的兩顆骰子！";
+        document.getElementById('player-score-text').textContent = "準備擲骰...";
+        document.getElementById('computer-score-text').textContent = "等待對手...";
+        document.getElementById('battle-log').innerHTML = `<div class="log-item">📜 冒險者【${playerName}】進入了試煉場！</div>`;
+        
+        clearGlows();
+        initDiceDOM();
+        switchScreen('game-screen');
+    }
+
+    function clearGlows() {
+        document.getElementById('player-card').classList.remove('winner-glow', 'leopard-glow');
+        document.getElementById('computer-card').classList.remove('winner-glow', 'leopard-glow');
+    }
+
+    function updateStars() {
+        const pStars = document.querySelectorAll('#player-stars .star');
+        const cStars = document.querySelectorAll('#computer-stars .star');
+        pStars.forEach((star, i) => star.classList.toggle('won', i < playerWins));
+        cStars.forEach((star, i) => star.classList.toggle('won', i < computerWins));
+    }
+
+    function addLog(text) {
+        const logBox = document.getElementById('battle-log');
+        const item = document.createElement('div');
+        item.className = 'log-item';
+        item.innerHTML = text;
+        logBox.prepend(item);
+    }
+
+    function playRound() {
+        if (isRolling) return;
+        isRolling = true;
+        clearGlows();
+
+        const rollBtn = document.getElementById('roll-btn');
+        rollBtn.disabled = true;
+        rollBtn.textContent = "🎲 骰子滾動中...";
+
+        const diceElements = [
+            document.getElementById('p-die-1'),
+            document.getElementById('p-die-2'),
+            document.getElementById('c-die-1'),
+            document.getElementById('c-die-2')
+        ];
+
+        diceElements.forEach(d => d.classList.add('rolling'));
+
+        const animInterval = setInterval(() => {
+            diceElements.forEach(d => renderDieFace(d, Math.floor(Math.random() * 6) + 1));
+        }, 80);
+
+        setTimeout(() => {
+            clearInterval(animInterval);
+            diceElements.forEach(d => d.classList.remove('rolling'));
+
+            const pDice1 = Math.floor(Math.random() * 6) + 1;
+            const pDice2 = Math.floor(Math.random() * 6) + 1;
+            const pTotal = pDice1 + pDice2;
+            const pIsLeopard = (pDice1 === pDice2);
+
+            const cDice1 = Math.floor(Math.random() * 6) + 1;
+            const cDice2 = Math.floor(Math.random() * 6) + 1;
+            const cTotal = cDice1 + cDice2;
+            const cIsLeopard = (cDice1 === cDice2);
+
+            renderDieFace(diceElements[0], pDice1);
+            renderDieFace(diceElements[1], pDice2);
+            renderDieFace(diceElements[2], cDice1);
+            renderDieFace(diceElements[3], cDice2);
+
+            const pTag = pIsLeopard ? `<span class="leopard-badge">🔥 豹子！</span>` : "";
+            const cTag = cIsLeopard ? `<span class="leopard-badge">🔥 豹子！</span>` : "";
+
+            document.getElementById('player-score-text').innerHTML = `【${pDice1} 點】+【${pDice2} 點】= 總和 ${pTotal} 點 ${pTag}`;
+            document.getElementById('computer-score-text').innerHTML = `【${cDice1} 點】+【${cDice2} 點】= 總和 ${cTotal} 點 ${cTag}`;
+
+            let statusMsg = "";
+
+            if (pIsLeopard && !cIsLeopard) {
+                statusMsg = "⚡ 豹子通殺！你用豹子無條件擊敗了電腦的一般點數，這回合你贏了！";
+                playerWins++;
+                document.getElementById('player-card').classList.add('leopard-glow');
+            } else if (cIsLeopard && !pIsLeopard) {
+                statusMsg = "💀 豹子通殺！電腦擲出豹子無條件擊敗了你，這回合電腦贏了！";
+                computerWins++;
+                document.getElementById('computer-card').classList.add('leopard-glow');
+            } else {
+                let prefix = (pIsLeopard && cIsLeopard) ? "⚔️ 雙豹子對決！直接比拼總和點數 — " : "";
+                if (pTotal > cTotal) {
+                    statusMsg = `${prefix}🎉 這回合你的點數較大，你贏了！`;
+                    playerWins++;
+                    document.getElementById('player-card').classList.add('winner-glow');
+                } else if (cTotal > pTotal) {
+                    statusMsg = `${prefix}💥 這回合電腦的點數較大，電腦贏了！`;
+                    computerWins++;
+                    document.getElementById('computer-card').classList.add('winner-glow');
+                } else {
+                    statusMsg = `${prefix}🤝 平手！雙方點數完全相同，沒有人得分。`;
+                }
+            }
+
+            document.getElementById('battle-status').innerHTML = statusMsg;
+            updateStars();
+            addLog(`<strong>第 ${roundNum} 回合</strong>：你 (${pDice1},${pDice2}${pIsLeopard ? '豹子' : ''}) vs 電腦 (${cDice1},${cDice2}${cIsLeopard ? '豹子' : ''}) → ${statusMsg}`);
+
+            if (playerWins === 3 || computerWins === 3) {
+                rollBtn.textContent = "🏆 查看最終結算...";
+                setTimeout(showFinalResult, 1300);
+            } else {
+                roundNum++;
+                document.getElementById('round-display').textContent = `--- 第 ${roundNum} 回合 ---`;
+                rollBtn.disabled = false;
+                rollBtn.textContent = "🎲 擲出下一回合雙骰！";
+                isRolling = false;
+            }
+        }, 550);
+    }
+
+    function showFinalResult() {
+        isRolling = false;
+        document.getElementById('roll-btn').disabled = false;
+        document.getElementById('roll-btn').textContent = "🎲 擲出雙骰！";
+
+        const iconEl = document.getElementById('final-icon');
+        const descEl = document.getElementById('final-desc');
+
+        if (playerWins === 3) {
+            iconEl.textContent = "🏆👑";
+            descEl.innerHTML = `恭喜【<strong>${playerName}</strong>】帶著【<strong>${playerEquip}</strong>】<br>以 <span style="color:#2ecc71; font-size:1.5rem; font-weight:bold;">${playerWins} : ${computerWins}</span> 擊敗了電腦，成為豹子賭神！`;
+        } else {
+            iconEl.textContent = "💻💀";
+            descEl.innerHTML = `很可惜，電腦以 <span style="color:#e74c3c; font-size:1.5rem; font-weight:bold;">${computerWins} : ${playerWins}</span> 獲得了最終勝利，<br>【${playerName}】下次帶著【${playerEquip}】再來挑戰吧！`;
+        }
+
+        switchScreen('result-screen');
+    }
+
+    function resetGame() {
+        switchScreen('setup-screen');
+    }
+</script>
+
+</body>
+</html>
